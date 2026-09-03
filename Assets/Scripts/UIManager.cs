@@ -1,66 +1,70 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using TMPro;
 
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance { get; private set; }
 
-    [Header("UI Screens (Canvas Groups)")]
+    [Header("UI Panels (Attach Canvas Groups)")]
     [SerializeField] private CanvasGroup screenCharacterSelect;
     [SerializeField] private CanvasGroup screenEmotionLab;
     [SerializeField] private CanvasGroup screenSettings;
-    [SerializeField] private float fadeDuration = 0.3f;
+    [SerializeField] private float fadeDuration = 0.25f;
 
-    [Header("Dynamic UI Elements (Screen 2 Reaction)")]
+    [Header("Dynamic Info Elements (Screen 2)")]
     [SerializeField] private TMP_Text characterNameText;
-    [SerializeField] private TMP_Text characterBioText;
     [SerializeField] private TMP_Text moodStatusText;
-    [SerializeField] private Image moodAccentBorder;
-    [SerializeField] private Slider intensitySlider;
 
     private CanvasGroup activeScreen;
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) 
+        { 
+            Destroy(gameObject); 
+            return; 
+        }
         Instance = this;
     }
 
     void Start()
     {
-        
-        ShowScreenImmediate(screenCharacterSelect);
+    
+        ShowImmediate(screenCharacterSelect);
     }
 
+    
     public void GoToCharacterSelect() => SwitchScreen(screenCharacterSelect);
     public void GoToEmotionLab() => SwitchScreen(screenEmotionLab);
     public void GoToSettings() => SwitchScreen(screenSettings);
 
     private void SwitchScreen(CanvasGroup targetScreen)
     {
-        if (activeScreen == targetScreen) return;
+        if (targetScreen == null || activeScreen == targetScreen) return;
         StopAllCoroutines();
         StartCoroutine(TransitionRoutine(targetScreen));
     }
 
     private IEnumerator TransitionRoutine(CanvasGroup target)
     {
+        
         if (activeScreen != null)
         {
-            yield return StartCoroutine(FadeCanvasGroup(activeScreen, 1f, 0f));
+            yield return StartCoroutine(FadeGroup(activeScreen, 1f, 0f));
             activeScreen.gameObject.SetActive(false);
         }
 
+        // Fade in target panel
         target.gameObject.SetActive(true);
-        yield return StartCoroutine(FadeCanvasGroup(target, 0f, 1f));
+        yield return StartCoroutine(FadeGroup(target, 0f, 1f));
         activeScreen = target;
     }
 
-    private IEnumerator FadeCanvasGroup(CanvasGroup cg, float start, float end)
+    private IEnumerator FadeGroup(CanvasGroup cg, float start, float end)
     {
         float elapsed = 0f;
+        cg.alpha = start;
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
@@ -72,29 +76,40 @@ public class UIManager : MonoBehaviour
         cg.blocksRaycasts = (end == 1f);
     }
 
-    private void ShowScreenImmediate(CanvasGroup target)
+    private void ShowImmediate(CanvasGroup target)
     {
-        screenCharacterSelect.gameObject.SetActive(false);
-        screenEmotionLab.gameObject.SetActive(false);
-        screenSettings.gameObject.SetActive(false);
+        
+        SetScreenState(screenCharacterSelect, false);
+        SetScreenState(screenEmotionLab, false);
+        SetScreenState(screenSettings, false);
 
-        target.gameObject.SetActive(true);
-        target.alpha = 1f;
-        target.interactable = true;
-        target.blocksRaycasts = true;
-        activeScreen = target;
+       
+        if (target != null)
+        {
+            SetScreenState(target, true);
+            activeScreen = target;
+        }
     }
 
-    
-    public void UpdateCharacterDisplay(string charName, string bio)
+    private void SetScreenState(CanvasGroup cg, bool visible)
     {
-        if (characterNameText != null) characterNameText.text = charName;
-        if (characterBioText != null) characterBioText.text = bio;
+        if (cg == null) return;
+        cg.gameObject.SetActive(visible);
+        cg.alpha = visible ? 1f : 0f;
+        cg.interactable = visible;
+        cg.blocksRaycasts = visible;
     }
 
-    public void UpdateMoodDisplay(string moodName, Color moodColor)
+  
+    public void UpdateCharacterDisplay(string charName)
     {
-        if (moodStatusText != null) moodStatusText.text = $"Mood: {moodName.ToUpper()}";
-        if (moodAccentBorder != null) moodAccentBorder.color = moodColor;
+        if (characterNameText != null)
+            characterNameText.text = $"Selected: {charName}";
+    }
+
+    public void UpdateMoodDisplay(string mood)
+    {
+        if (moodStatusText != null)
+            moodStatusText.text = $"Current Mood: {mood}";
     }
 }

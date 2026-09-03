@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class GameManager : MonoBehaviour
 {
@@ -10,7 +11,11 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this) 
+        { 
+            Destroy(gameObject); 
+            return; 
+        }
         Instance = this;
     }
 
@@ -26,19 +31,22 @@ public class GameManager : MonoBehaviour
 
     private void HandleDirectKeyboardInput()
     {
+        var keyboard = Keyboard.current;
+        if (keyboard == null) return;
+
         
-        if (Input.GetKeyDown(KeyCode.Alpha1)) SelectCharacter(0);
-        if (Input.GetKeyDown(KeyCode.Alpha2)) SelectCharacter(1);
-        if (Input.GetKeyDown(KeyCode.Alpha3)) SelectCharacter(2);
+        if (keyboard.digit1Key.wasPressedThisFrame) SelectCharacter(0);
+        if (keyboard.digit2Key.wasPressedThisFrame) SelectCharacter(1);
+        if (keyboard.digit3Key.wasPressedThisFrame) SelectCharacter(2);
 
-        // Emotion trigger keys
-        if (Input.GetKeyDown(KeyCode.J)) TriggerJoy();
-        if (Input.GetKeyDown(KeyCode.A)) TriggerAnger();
-        if (Input.GetKeyDown(KeyCode.S)) TriggerSadness();
+      
+        if (keyboard.jKey.wasPressedThisFrame) TriggerJoy();
+        if (keyboard.aKey.wasPressedThisFrame) TriggerAnger();
+        if (keyboard.sKey.wasPressedThisFrame) TriggerSadness();
 
-        // Speed / Intensity test keys
-        if (Input.GetKeyDown(KeyCode.UpArrow)) SetIntensity(1.5f);
-        if (Input.GetKeyDown(KeyCode.DownArrow)) SetIntensity(0.75f);
+      
+        if (keyboard.upArrowKey.wasPressedThisFrame) SetIntensity(1.5f);
+        if (keyboard.downArrowKey.wasPressedThisFrame) SetIntensity(0.75f);
     }
 
     public void SelectCharacter(int index)
@@ -58,8 +66,8 @@ public class GameManager : MonoBehaviour
         if (UIManager.Instance != null)
         {
             var activeChar = characters[activeIndex];
-            UIManager.Instance.UpdateCharacterDisplay(activeChar.characterName, activeChar.characterBio);
-            UIManager.Instance.UpdateMoodDisplay("Idle", Color.gray);
+            UIManager.Instance.UpdateCharacterDisplay(activeChar.characterName);
+            UIManager.Instance.UpdateMoodDisplay("Idle");
         }
     }
 
@@ -67,7 +75,7 @@ public class GameManager : MonoBehaviour
     {
         characters[activeIndex].PlayJoy();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayCheerSFX();
-        if (UIManager.Instance != null) UIManager.Instance.UpdateMoodDisplay("Joy", new Color(1f, 0.85f, 0.2f));
+        if (UIManager.Instance != null) UIManager.Instance.UpdateMoodDisplay("Joy");
         Debug.Log("Triggered: Joy");
     }
 
@@ -75,7 +83,7 @@ public class GameManager : MonoBehaviour
     {
         characters[activeIndex].PlayAnger();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayAngerSFX();
-        if (UIManager.Instance != null) UIManager.Instance.UpdateMoodDisplay("Anger", new Color(0.9f, 0.25f, 0.25f));
+        if (UIManager.Instance != null) UIManager.Instance.UpdateMoodDisplay("Anger");
         Debug.Log("Triggered: Anger");
     }
 
@@ -83,7 +91,7 @@ public class GameManager : MonoBehaviour
     {
         characters[activeIndex].PlaySadness();
         if (AudioManager.Instance != null) AudioManager.Instance.PlayCrySFX();
-        if (UIManager.Instance != null) UIManager.Instance.UpdateMoodDisplay("Sadness", new Color(0.25f, 0.5f, 0.9f));
+        if (UIManager.Instance != null) UIManager.Instance.UpdateMoodDisplay("Sadness");
         Debug.Log("Triggered: Sadness");
     }
 
