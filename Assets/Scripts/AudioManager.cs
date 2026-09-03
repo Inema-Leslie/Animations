@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -8,49 +9,128 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource bgmSource;
     [SerializeField] private AudioSource sfxSource;
 
-    [Header("SFX Clips")]
-    [SerializeField] private AudioClip cheerClip;
-    [SerializeField] private AudioClip angerClip;
-    [SerializeField] private AudioClip cryClip;
+    [Header("Audio Clips")]
+    [SerializeField] private AudioClip ambienceClip;
+    [SerializeField] private AudioClip joySFX;
+    [SerializeField] private AudioClip angerSFX;
+    [SerializeField] private AudioClip sadnessSFX;
 
+    [Header("Animation Sync Settings")]
+    [Tooltip("Default duration (in seconds) of your character's reaction clips before cutting SFX.")]
+    [SerializeField] private float defaultClipDuration = 2.5f;
+
+    private float masterVolume = 1f;
     private bool isMuted = false;
+    private Coroutine playbackSyncCoroutine;
 
     void Awake()
     {
-        if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    public void PlayCheerSFX() => PlaySFX(cheerClip);
-    public void PlayAngerSFX() => PlaySFX(angerClip);
-    public void PlayCrySFX() => PlaySFX(cryClip);
-
-    private void PlaySFX(AudioClip clip)
+    void Start()
     {
-        if (clip == null || isMuted) return;
-        sfxSource.Stop(); 
+        if (bgmSource != null && ambienceClip != null)
+        {
+            bgmSource.clip = ambienceClip;
+            bgmSource.loop = true;
+            bgmSource.volume = masterVolume * 0.7f;
+            bgmSource.Play();
+        }
+    }
+
+    
+    public void PlayCheerSFX(float speedMultiplier = 1f) => PlayEmotionSFX(joySFX, speedMultiplier);
+    public void PlayAngerSFX(float speedMultiplier = 1f) => PlayEmotionSFX(angerSFX, speedMultiplier);
+    public void PlayCrySFX(float speedMultiplier = 1f) => PlayEmotionSFX(sadnessSFX, speedMultiplier);
+
+    public void PlayEmotionSFX(AudioClip clip, float speedMultiplier = 1f)
+    {
+        if (clip == null || sfxSource == null) return;
+
+        
+        if (playbackSyncCoroutine != null) StopCoroutine(playbackSyncCoroutine);
+        sfxSource.Stop();
+
+        
         sfxSource.clip = clip;
+        sfxSource.volume = masterVolume;
         sfxSource.Play();
+
+        
+        if (bgmSource != null) bgmSource.Pause();
+
+        
+        float safeMultiplier = Mathf.Max(0.1f, speedMultiplier);
+        float activeDuration = defaultClipDuration / safeMultiplier;
+
+        
+        playbackSyncCoroutine = StartCoroutine(SyncSFXWithAnimationRoutine(activeDuration));
     }
 
-    public void SetMasterVolume(float value)
+    private IEnumerator SyncSFXWithAnimationRoutine(float activeDuration)
     {
-        AudioListener.volume = isMuted ? 0f : value;
+        
+        float fadeTime = 0.2f;
+        float playDuration = Mathf.Max(0.1f, activeDuration - fadeTime);
+
+        yield return new WaitForSeconds(playDuration);
+
+        
+        float startVol = sfxSource.volume;
+        float elapsed = 0f;
+
+        while (elapsed < fadeTime)
+        {
+            elapsed += Time.deltaTime;
+            if (sfxSource != null)
+                sfxSource.volume = Mathf.Lerp(startVol, 0f, elapsed / fadeTime);
+            yield return null;
+        }
+
+        StopEmotionSFX();
     }
 
-    public void SetBGMVolume(float value)
+    public void StopEmotionSFX()
     {
-        if (bgmSource != null) bgmSource.volume = value;
+        if (playbackSyncCoroutine != null)
+        {
+            StopCoroutine(playbackSyncCoroutine);
+            playbackSyncCoroutine = null;
+        }
+
+        if (sfxSource != null)
+        {
+            sfxSource.Stop();
+            sfxSource.volume = masterVolume;
+        }
+
+        
+        if (bgmSource != null && !isMuted)
+        {
+            bgmSource.UnPause();
+        }
     }
 
-    public void SetSFXVolume(float value)
+    
+    public void SetVolume(float volume)
     {
-        if (sfxSource != null) sfxSource.volume = value;
+        masterVolume = Mathf.Clamp01(volume);
+        float effectiveVolume = Mathf.Pow(masterVolume, 2f);
+
+        if (bgmSource != null) bgmSource.volume = effectiveVolume * 0.7f;
+        if (sfxSource != null) sfxSource.volume = effectiveVolume;
     }
 
-    public void ToggleMute(bool mute)
+    public void ToggleMute(bool muted)
     {
-        isMuted = mute;
+        isMuted = muted;
         AudioListener.pause = isMuted;
     }
 }
