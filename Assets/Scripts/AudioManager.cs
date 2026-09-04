@@ -16,7 +16,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioClip sadnessSFX;
 
     [Header("Animation Sync Settings")]
-    [Tooltip("Default duration (in seconds) of your character's reaction clips before cutting SFX.")]
+    [Tooltip("Default duration (in seconds) of the character's reaction clips before cutting SFX.")]
     [SerializeField] private float defaultClipDuration = 2.5f;
 
     private float masterVolume = 1f;
