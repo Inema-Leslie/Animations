@@ -1,20 +1,20 @@
 # Interactive Character Experience
 
 ## Project Description
-The **Interactive Character Experience** is an interactive Unity application designed to showcase dynamic character behaviors, emotional expressions, and synchronized audiovisual feedback. Users can switch between distinct 3D character models in real time and trigger specific emotional states (Joy, Anger, Sadness). Each reaction drives state transitions within an Animator Controller while dynamically orchestrating sound effects and background audio ducking.
+The **Interactive Character Experience** is a Unity application designed to showcase dynamic character behaviors, emotional expression, and synchronized audiovisual feedback. Users can switch between distinct 3D character models in real time and trigger specific emotional states (Joy, Anger, Sadness). Each reaction drives state transitions within an Animator Controller while dynamically orchestrating sound effects and background audio ducking.
 
 ---
 
 ## Controls and Interactions
 
-* **Character Selection:** Click the on-screen character buttons to switch the active 3D character model.
+* **Character Selection:** Click the on-screen character buttons to switch the active 3D character model, or 1 for the 1st character, 2 for 2nd and 3 for 3rd
 * **Emotion Triggers:**
-  * **Happy Button:** Triggers the happy animation reaction and plays the corresponding cheer SFX.
-  * **Anger Button:** Triggers the angry animation state and plays the anger SFX.
-  * **Sadness Button:** Triggers the sad reaction and plays the crying SFX.
+  * **Happy Button / J key:** Triggers the happy animation reaction and plays the corresponding cheer SFX.
+  * **Anger Button/ A key:** Triggers the angry animation state and plays the anger SFX.
+  * **Sadness Button/ S key:** Triggers the sad reaction and plays the crying SFX.
 * **Audio Controls:**
   * **Master Volume Slider:** Dynamically adjusts global audio levels across background ambience and sound effects using a logarithmic curve.
-  * **Mute Toggle:** Instantly mutes or restores all game audio without losing track positions.
+  
 
 ---
 
