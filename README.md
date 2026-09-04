@@ -22,7 +22,7 @@ The **Interactive Character Experience** is a Unity application designed to show
 
 The project is structured around modular managers using the Singleton pattern to maintain a clear separation of concerns:
 
-* **`GameManager`:** Controls core session logic and character swapping. It manages active character states using boundary validation (`Mathf.Clamp`) to prevent index out-of-range errors and notifies UI systems upon state changes.
-* **`CharacterMoodController`:** Communicates directly with the character's `Animator` component. It fires triggers (`TriggerJoy`, `TriggerAnger`, `TriggerSadness`) and updates mood parameters, routing from the `Any State` node into distinct reaction clips before smoothly transitioning back to `Idle`.
-* **`AudioManager`:** Manages continuous background ambience (`bgmSource`) and one-shot emotion sounds (`sfxSource`). It synchronizes sound playback with animation clip durations via coroutines, automatically pausing background music and applying a smooth volume fade-out (`Mathf.Lerp`) at the end of each reaction.
-* **`UIManager`:** Handles HUD updates, reflecting current character names, active emotional states, and routing UI button interactions directly to the appropriate manager scripts.
+* ** GameManager:** Controls core session logic and character swapping. It manages active character states using boundary validation (Mathf.Clamp) to prevent index out-of-range errors and notifies UI systems upon state changes.
+* ** CharacterMoodController:** Communicates directly with the character's Animator component. It fires triggers (TriggerJoy, TriggerAnger, TriggerSadness) and updates mood parameters, routing from the Any State node into distinct reaction clips before smoothly transitioning back to Idle.
+* ** AudioManager:** Manages continuous background ambience (bgmSource) and one-shot emotion sounds (sfxSource). It synchronizes sound playback with animation clip durations via coroutines, automatically pausing background music and applying a smooth volume fade-out (Mathf.Lerp) at the end of each reaction.
+* ** UIManager:** Handles HUD updates, reflecting current character names, active emotional states, and routing UI button interactions directly to the appropriate manager scripts.
